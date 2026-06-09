@@ -949,21 +949,21 @@ elif page == "Prediction":
     st.markdown(
         t("Upload a portfolio CSV with one business per row and get a batch risk report. The CSV must contain the same base input features used by the model.")
     )
-    upload_col, sample_col = st.columns([3, 1])
-    with upload_col:
-        uploaded_file = st.file_uploader(
+    uploaded_file = st.file_uploader(
             t("Upload portfolio CSV"),
             type=["csv"],
-            help=t("Required columns: credit_amount, monthly_income_avg, total_deposits_3m, revenue_volatility_3m, request_ratio, dti_monthly, nsf_count_3m, negative_days_3m, owner_percentage, owner_credit_score, business_age_months"),
+            help=t(
+                "Required columns: credit_amount, monthly_income_avg, "
+                "total_deposits_3m, revenue_volatility_3m, request_ratio, "
+                "dti_monthly, nsf_count_3m, negative_days_3m, "
+                "owner_percentage, owner_credit_score, business_age_months"
+            ),
         )
-    with sample_col:
+
         st.markdown(f"### {t('Required Columns')}")
-        st.caption(
-            t("credit_amount, monthly_income_avg, total_deposits_3m,\n"
-              "revenue_volatility_3m, request_ratio, dti_monthly,\n"
-              "nsf_count_3m, negative_days_3m, owner_percentage,\n"
-              "owner_credit_score, business_age_months")
-        )
+
+        st.info(""" credit_amount , monthly_income_avg , total_deposits_3m , revenue_volatility_3m , request_ratio 
+                , dti_monthly , nsf_count_3m , negative_days_3m , owner_percentage , owner_credit_score , business_age_months """)
 
         if uploaded_file is not None:
             try:
@@ -1020,7 +1020,7 @@ elif page == "Prediction":
                         labels=donut_labels,
                         values=donut_values,
                         hole=0.55,
-                        marker_color=donut_colors,
+                        marker=dict(colors=donut_colors),
                         textinfo="percent+label",
                         textfont=dict(color=font_color, size=12),
                         pull=[0.03, 0.03, 0.06]
@@ -1145,7 +1145,11 @@ elif page == "Prediction":
                     pipeline_shap  = load_pipeline()
                     prepared       = pipeline_shap.named_steps['feat_eng'].transform(shap_input)
                     processed      = pipeline_shap.named_steps['preprocessor'].transform(prepared)
-                    feature_names  = list(prepared.columns)
+                    feature_names = (
+                        pipeline_shap
+                        .named_steps["preprocessor"]
+                        .get_feature_names_out()
+                    )
  
                     classifier = pipeline_shap.named_steps['classifier']
                     if hasattr(classifier, 'calibrated_classifiers_'):
