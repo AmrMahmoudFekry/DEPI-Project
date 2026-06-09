@@ -5,6 +5,8 @@ import os
 import base64
 from datetime import datetime
 from pathlib import Path
+import shap
+import numpy as np
 
 from utils.model_loader import (
     load_pipeline,
@@ -1151,10 +1153,12 @@ elif page == "Prediction":
             st.caption("Shows which features drove the risk predictions across all uploaded businesses.")
  
             try:
-                import shap
-                import numpy as np
  
-                shap_input     = raw_batch_df.copy()
+                shap_input     = raw_batch_df.copy
+                missing_cols = [c for c in TRAINING_COLUMN_ORDER if c not in shap_input.columns]
+                if missing_cols:
+                    st.warning(f"Missing columns for SHAP: {missing_cols}")
+                shap_input = shap_input[TRAINING_COLUMN_ORDER].copy()
                 pipeline_shap  = load_pipeline()
                 prepared       = pipeline_shap.named_steps['feat_eng'].transform(shap_input)
                 processed      = pipeline_shap.named_steps['preprocessor'].transform(prepared)
