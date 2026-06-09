@@ -11,7 +11,8 @@ import numpy as np
 from utils.model_loader import (
     load_pipeline,
     predict_risk,
-    predict_batch_risk
+    predict_batch_risk,
+    TRAINING_COLUMN_ORDER
 )
 
 from utils.helper import prepare_input
