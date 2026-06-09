@@ -76,31 +76,38 @@ RISK_TEXTS = {
     }
 }
 
+# الترتيب الحقيقي للـ training data — يُستخدم لإعادة ترتيب أي input
+TRAINING_COLUMN_ORDER = [
+    'credit_amount', 'monthly_income_avg', 'total_deposits_3m',
+    'nsf_count_3m', 'negative_days_3m', 'business_age_months',
+    'dti_monthly', 'owner_percentage', 'owner_credit_score',
+    'revenue_volatility_3m', 'request_ratio'
+]
+
 
 # =========================================================
-# VALIDATION HELPER
+# VALIDATION + REORDER HELPER
 # =========================================================
-def _validate_required_columns(dataframe: pd.DataFrame) -> None:
-    """Raise KeyError if any required input column is missing."""
+def _prepare_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    1. Validate all required columns are present.
+    2. Reorder columns to match the training data order exactly.
+       This allows users to upload CSV files in any column order.
+    """
     missing = [c for c in REQUIRED_COLUMNS if c not in dataframe.columns]
     if missing:
         raise KeyError(
             f"Missing required model input features: {', '.join(missing)}"
         )
+    # Reorder to match training data — extra columns are dropped
+    return dataframe[TRAINING_COLUMN_ORDER].copy()
 
 
 # =========================================================
 # SINGLE PREDICTION
 # =========================================================
 def predict_risk(pipeline, dataframe, lang="en"):
-    """
-    Pass the raw dataframe directly to the pipeline.
-    The pipeline's SMEFeatureEngineer step handles all
-    feature engineering internally — do NOT reorder or
-    drop columns before calling predict.
-    """
-    _validate_required_columns(dataframe)
-
+    dataframe   = _prepare_dataframe(dataframe)
     prediction  = pipeline.predict(dataframe)[0]
     probability = pipeline.predict_proba(dataframe)[0][1]
 
@@ -145,12 +152,9 @@ def predict_risk(pipeline, dataframe, lang="en"):
 def predict_batch_risk(pipeline, dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     Batch scoring — English labels only (written to CSV report).
-    Pass raw dataframe straight to the pipeline; feature engineering
-    happens inside the pipeline's SMEFeatureEngineer step.
+    Accepts CSV in any column order — reorders internally to match training.
     """
-    _validate_required_columns(dataframe)
-
-    df            = dataframe.copy()
+    df            = _prepare_dataframe(dataframe)
     probabilities = pipeline.predict_proba(df)[:, 1]
     predictions   = pipeline.predict(df)
     risk_scores   = np.round(probabilities * 100, 2)
