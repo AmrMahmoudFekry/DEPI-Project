@@ -951,7 +951,7 @@ elif page == "Prediction":
 
     st.markdown(
         t(
-            "Upload a portfolio CSV with one business per row and get a batch risk report. "
+            "Upload a portfolio CSV with one business per row and get a batch risk report. " + "/n" +
             "The CSV must contain the same base input features used by the model."
         )
     )
@@ -969,26 +969,9 @@ elif page == "Prediction":
 
     st.markdown(f"### {t('Required Columns')}")
 
-    col1, col2 = st.columns(2)
+        st.markdown(""" credit_amount , monthly_income_avg , total_deposits_3m , revenue_volatility_3m , request_ratio , dti_monthly """)
 
-    with col1:
-        st.code("""
-        credit_amount
-        monthly_income_avg
-        total_deposits_3m
-        revenue_volatility_3m
-        request_ratio
-        dti_monthly
-        """)
-
-    with col2:
-        st.code("""
-        nsf_count_3m
-        negative_days_3m
-        owner_percentage
-        owner_credit_score
-        business_age_months
-        """)
+        st.markdown(""" nsf_count_3m , negative_days_3m , owner_percentage , owner_credit_score , business_age_months """)
 
     if uploaded_file is not None:
         try:
