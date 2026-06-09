@@ -949,16 +949,16 @@ elif page == "Prediction":
     st.markdown(
         t("Upload a portfolio CSV with one business per row and get a batch risk report. The CSV must contain the same base input features used by the model.")
     )
-    uploaded_file = st.file_uploader(
-            t("Upload portfolio CSV"),
-            type=["csv"],
-            help=t(
-                "Required columns: credit_amount, monthly_income_avg, "
-                "total_deposits_3m, revenue_volatility_3m, request_ratio, "
-                "dti_monthly, nsf_count_3m, negative_days_3m, "
-                "owner_percentage, owner_credit_score, business_age_months"
-            ),
-        )
+        uploaded_file = st.file_uploader(
+                t("Upload portfolio CSV"),
+                type=["csv"],
+                help=t(
+                    "Required columns: credit_amount, monthly_income_avg, "
+                    "total_deposits_3m, revenue_volatility_3m, request_ratio, "
+                    "dti_monthly, nsf_count_3m, negative_days_3m, "
+                    "owner_percentage, owner_credit_score, business_age_months"
+                ),
+            )
 
         st.markdown(f"### {t('Required Columns')}")
 
