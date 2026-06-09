@@ -969,9 +969,9 @@ elif page == "Prediction":
 
     st.markdown(f"### {t('Required Columns')}")
 
-        st.markdown(""" credit_amount , monthly_income_avg , total_deposits_3m , revenue_volatility_3m , request_ratio , dti_monthly """)
+    st.markdown(""" credit_amount , monthly_income_avg , total_deposits_3m , revenue_volatility_3m , request_ratio , dti_monthly """)
 
-        st.markdown(""" nsf_count_3m , negative_days_3m , owner_percentage , owner_credit_score , business_age_months """)
+    st.markdown(""" nsf_count_3m , negative_days_3m , owner_percentage , owner_credit_score , business_age_months """)
 
     if uploaded_file is not None:
         try:
