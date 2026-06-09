@@ -965,40 +965,262 @@ elif page == "Prediction":
               "owner_credit_score, business_age_months")
         )
 
-    if uploaded_file is not None:
-        try:
-            raw_batch_df  = pd.read_csv(uploaded_file)
-            pipeline      = load_pipeline()
-            batch_results = predict_batch_risk(pipeline, raw_batch_df)
+        if uploaded_file is not None:
+            try:
+                import plotly.graph_objects as go
+ 
+                raw_batch_df  = pd.read_csv(uploaded_file)
+                pipeline      = load_pipeline()
+                batch_results = predict_batch_risk(pipeline, raw_batch_df)
+ 
+                count_by_label = batch_results['risk_label'].value_counts().to_dict()
+                low_count  = count_by_label.get('LOW RISK',    0)
+                med_count  = count_by_label.get('MEDIUM RISK', 0)
+                high_count = count_by_label.get('HIGH RISK',   0)
+                total      = len(batch_results)
+                avg_score  = round(batch_results['risk_score'].mean(), 1)
+                avg_credit_score = round(raw_batch_df['owner_credit_score'].mean(), 0) \
+                    if 'owner_credit_score' in raw_batch_df.columns else 0
+ 
+                font_color = "#F8FAFC" if theme == "dark" else "#0F172A"
+                bg_color   = "rgba(0,0,0,0)" if theme == "dark" else "#FFFFFF"
+ 
+                # ── KPI Cards ────────────────────────────
+                st.markdown(f"### 📊 {t('Batch Prediction Summary')}")
+                k1, k2, k3, k4 = st.columns(4)
+ 
+                def _kpi(col, label, value, color):
+                    col.markdown(
+                        f"""<div style="
+                            background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#F1F5F9'};
+                            border-radius:14px;padding:18px;text-align:center;
+                            border-top:4px solid {color};margin-bottom:8px;">
+                            <div style="color:{badge_text};font-size:12px;margin-bottom:6px;">{label}</div>
+                            <div style="color:{color};font-size:28px;font-weight:800;">{value}</div>
+                        </div>""",
+                        unsafe_allow_html=True
+                    )
+ 
+                _kpi(k1, "Total SMEs",       total,              "#2563EB")
+                _kpi(k2, "High Risk",         high_count,         "#EF4444")
+                _kpi(k3, "Avg Risk Score",    f"{avg_score}%",    "#F59E0B")
+                _kpi(k4, "Avg Credit Score",  int(avg_credit_score), "#10B981")
+ 
+                st.markdown("---")
+ 
+                # ── Charts Row 1: Donut + Bar ─────────────
+                st.markdown("### 📈 Portfolio Risk Visualizations")
+                chart_col1, chart_col2 = st.columns(2)
+ 
+                with chart_col1:
+                    donut_labels = ["Low Risk", "Medium Risk", "High Risk"]
+                    donut_values = [low_count, med_count, high_count]
+                    donut_colors = ["#10B981", "#F59E0B", "#EF4444"]
+                    fig_donut = go.Figure(go.Pie(
+                        labels=donut_labels,
+                        values=donut_values,
+                        hole=0.55,
+                        marker_color=donut_colors,
+                        textinfo="percent+label",
+                        textfont=dict(color=font_color, size=12),
+                        pull=[0.03, 0.03, 0.06]
+                    ))
+                    fig_donut.update_layout(
+                        title="Risk Level Distribution",
+                        title_font=dict(color=font_color, size=15),
+                        paper_bgcolor=bg_color,
+                        font=dict(color=font_color),
+                        legend=dict(font=dict(color=font_color)),
+                        height=360,
+                        margin=dict(l=20, r=20, t=50, b=20)
+                    )
+                    st.plotly_chart(fig_donut, use_container_width=True)
+ 
+                with chart_col2:
+                    if 'credit_amount' in batch_results.columns:
+                        avg_credit_by_risk = (
+                            batch_results.groupby('risk_label')['credit_amount']
+                            .mean()
+                            .reindex(['LOW RISK', 'MEDIUM RISK', 'HIGH RISK'])
+                            .fillna(0)
+                            .reset_index()
+                        )
+                        fig_bar = go.Figure(go.Bar(
+                            x=avg_credit_by_risk['risk_label'],
+                            y=avg_credit_by_risk['credit_amount'],
+                            marker_color=["#10B981", "#F59E0B", "#EF4444"],
+                            text=[f"EGP {v:,.0f}" for v in avg_credit_by_risk['credit_amount']],
+                            textposition="outside",
+                            textfont=dict(color=font_color, size=11)
+                        ))
+                        fig_bar.update_layout(
+                            title="Avg Credit Amount by Risk Level",
+                            title_font=dict(color=font_color, size=15),
+                            yaxis=dict(title="Avg Credit (EGP)",
+                                       tickfont=dict(color=font_color),
+                                       gridcolor="rgba(100,100,100,0.15)"),
+                            xaxis=dict(tickfont=dict(color=font_color)),
+                            paper_bgcolor=bg_color,
+                            plot_bgcolor=bg_color,
+                            font=dict(color=font_color),
+                            height=360,
+                            margin=dict(l=20, r=20, t=50, b=20),
+                            template="plotly_dark" if theme == "dark" else "plotly_white"
+                        )
+                        st.plotly_chart(fig_bar, use_container_width=True)
+ 
+                # ── Charts Row 2: Histogram + Top 5 ──────
+                hist_col, top_col = st.columns(2)
+ 
+                with hist_col:
+                    fig_hist = go.Figure(go.Histogram(
+                        x=batch_results['risk_score'],
+                        nbinsx=20,
+                        marker_color="#2563EB",
+                        opacity=0.85
+                    ))
+                    fig_hist.add_vline(x=40, line_dash="dash", line_color="#10B981",
+                                       annotation_text="Low/Med",
+                                       annotation_font_color="#10B981")
+                    fig_hist.add_vline(x=70, line_dash="dash", line_color="#EF4444",
+                                       annotation_text="Med/High",
+                                       annotation_font_color="#EF4444")
+                    fig_hist.update_layout(
+                        title="Risk Score Distribution",
+                        title_font=dict(color=font_color, size=15),
+                        xaxis=dict(title="Risk Score (%)", tickfont=dict(color=font_color)),
+                        yaxis=dict(title="Count", tickfont=dict(color=font_color),
+                                   gridcolor="rgba(100,100,100,0.15)"),
+                        paper_bgcolor=bg_color,
+                        plot_bgcolor=bg_color,
+                        font=dict(color=font_color),
+                        height=360,
+                        margin=dict(l=20, r=20, t=50, b=20),
+                        template="plotly_dark" if theme == "dark" else "plotly_white"
+                    )
+                    st.plotly_chart(fig_hist, use_container_width=True)
+ 
+                with top_col:
+                    st.markdown(
+                        f"""<div style="
+                            background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#F1F5F9'};
+                            border-radius:14px;padding:16px;
+                            border-top:4px solid #EF4444;">
+                            <div style="color:#EF4444;font-weight:800;font-size:15px;margin-bottom:12px;">
+                                🚨 Top 5 Highest Risk Businesses
+                            </div>""",
+                        unsafe_allow_html=True
+                    )
+                    top5 = batch_results.nlargest(5, 'risk_score')[
+                        ['risk_score', 'confidence', 'risk_label']
+                    ].reset_index()
+                    for _, row in top5.iterrows():
+                        st.markdown(
+                            f"""<div style="
+                                background:rgba(239,68,68,0.1);
+                                border-radius:10px;padding:10px 14px;
+                                margin-bottom:8px;
+                                border-left:3px solid #EF4444;">
+                                <div style="color:{font_color};font-size:13px;">
+                                    <b>Row {int(row['index'])+1}</b> —
+                                    Risk Score: <b style="color:#EF4444;">{row['risk_score']}%</b>
+                                    | Conf: {row['confidence']}%
+                                </div>
+                            </div>""",
+                            unsafe_allow_html=True
+                        )
+                    st.markdown("</div>", unsafe_allow_html=True)
+ 
+                st.markdown("---")
+ 
+                # ── Batch SHAP ────────────────────────────
+                st.markdown("### 🧠 Batch SHAP Summary — Portfolio-Level Feature Impact")
+                st.caption("Shows which features drove the risk predictions across all uploaded businesses.")
+ 
+                try:
+                    import shap
+                    import numpy as np
+ 
+                    shap_input     = raw_batch_df.copy()
+                    pipeline_shap  = load_pipeline()
+                    prepared       = pipeline_shap.named_steps['feat_eng'].transform(shap_input)
+                    processed      = pipeline_shap.named_steps['preprocessor'].transform(prepared)
+                    feature_names  = list(prepared.columns)
+ 
+                    classifier = pipeline_shap.named_steps['classifier']
+                    if hasattr(classifier, 'calibrated_classifiers_'):
+                        estimator = classifier.calibrated_classifiers_[0].estimator
+                    else:
+                        estimator = getattr(classifier, 'base_estimator', classifier)
+ 
+                    explainer   = shap.TreeExplainer(estimator)
+                    shap_values = explainer.shap_values(processed)
+                    if isinstance(shap_values, list):
+                        shap_values = shap_values[1] if len(shap_values) > 1 else shap_values[0]
+ 
+                    mean_shap  = shap_values.mean(axis=0)
+                    importance = np.abs(mean_shap)
+                    direction  = np.sign(mean_shap)
+ 
+                    shap_df = pd.DataFrame({
+                        'feature':    feature_names,
+                        'importance': importance,
+                        'direction':  direction
+                    }).sort_values('importance', ascending=False).head(12)
+ 
+                    shap_df['color'] = shap_df['direction'].map(
+                        {1.0: '#EF4444', -1.0: '#10B981', 0.0: '#6B7280'}
+                    )
+ 
+                    fig_shap = go.Figure(go.Bar(
+                        x=shap_df['importance'][::-1],
+                        y=shap_df['feature'][::-1],
+                        orientation='h',
+                        marker_color=list(shap_df['color'][::-1]),
+                        text=[f"{v:.3f}" for v in shap_df['importance'][::-1]],
+                        textposition='outside',
+                        textfont=dict(color=font_color, size=11)
+                    ))
+                    fig_shap.update_layout(
+                        title='SHAP Feature Contributions (Batch — Top 12)',
+                        title_font=dict(color=font_color, size=15),
+                        xaxis=dict(title='Mean |SHAP value|',
+                                   tickfont=dict(color=font_color)),
+                        yaxis=dict(tickfont=dict(color=font_color)),
+                        paper_bgcolor=bg_color,
+                        plot_bgcolor=bg_color,
+                        font=dict(color=font_color),
+                        height=440,
+                        margin=dict(l=20, r=20, t=50, b=20),
+                        template="plotly_dark" if theme == "dark" else "plotly_white"
+                    )
+                    st.plotly_chart(fig_shap, use_container_width=True)
+                    st.caption("🔴 Red = pushes toward High Risk  |  🟢 Green = pushes toward Low Risk")
+ 
+                except Exception as shap_err:
+                    st.info(f"SHAP analysis unavailable for this batch: {shap_err}")
+ 
+                st.markdown("---")
+ 
+                # ── Table + Download ──────────────────────
+                st.markdown(f"### 📋 {t('Sample Batch Output')}")
+                st.dataframe(batch_results.head(10), use_container_width=True)
+ 
+                csv_bytes = batch_results.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="📥 Download Full Batch Risk Report (CSV)",
+                    data=csv_bytes,
+                    file_name="batch_risk_report.csv",
+                    mime="text/csv"
+                )
+ 
+            except KeyError as e:
+                st.error(f"Batch CSV validation failed: {str(e)}")
+            except Exception as e:
+                st.error(f"Unable to run batch prediction: {e}")
+ 
+        st.markdown("---")
 
-            count_by_label = batch_results['risk_label'].value_counts().to_dict()
-            low_count  = count_by_label.get('LOW RISK', 0)
-            med_count  = count_by_label.get('MEDIUM RISK', 0)
-            high_count = count_by_label.get('HIGH RISK', 0)
-
-            st.markdown(f"### {t('Batch Prediction Summary')}")
-            summary_cols = st.columns(3)
-            summary_cols[0].metric(t('Low Risk'),    f"{low_count}")
-            summary_cols[1].metric(t('Medium Risk'), f"{med_count}")
-            summary_cols[2].metric(t('High Risk'),   f"{high_count}")
-
-            st.markdown(f"### {t('Sample Batch Output')}")
-            st.dataframe(batch_results.head(10), use_container_width=True)
-
-            csv_bytes = batch_results.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="📥 Download Batch Risk Report",
-                data=csv_bytes,
-                file_name="batch_risk_report.csv",
-                mime="text/csv"
-            )
-
-        except KeyError as e:
-            st.error(f"Batch CSV validation failed: {str(e)}")
-        except Exception as e:
-            st.error(f"Unable to run batch prediction: {e}")
-
-    st.markdown("---")
 
     # ── Single Business Prediction ────────────────────────
     st.markdown(f"## {t('Single Business Prediction')}")
