@@ -945,10 +945,10 @@ elif page == "Prediction":
     st.markdown("---")
 
     # ── Batch Prediction ──────────────────────────────────
-    st.markdown(f"## {t('Batch Prediction')}")
-    st.markdown(
-        t("Upload a portfolio CSV with one business per row and get a batch risk report. The CSV must contain the same base input features used by the model.")
-    )
+        st.markdown(f"## {t('Batch Prediction')}")
+        st.markdown(
+            t("Upload a portfolio CSV with one business per row and get a batch risk report. The CSV must contain the same base input features used by the model.")
+        )
         uploaded_file = st.file_uploader(
                 t("Upload portfolio CSV"),
                 type=["csv"],
