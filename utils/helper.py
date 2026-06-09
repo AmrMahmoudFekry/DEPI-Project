@@ -3,10 +3,10 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 REQUIRED_COLUMNS = [
-    'credit_amount', 'business_age_months', 'monthly_income_avg',
-    'total_deposits_3m', 'revenue_volatility_3m', 'request_ratio',
-    'dti_monthly', 'nsf_count_3m', 'negative_days_3m',
-    'owner_percentage', 'owner_credit_score'
+    'credit_amount', 'monthly_income_avg', 'total_deposits_3m',
+    'revenue_volatility_3m', 'request_ratio', 'dti_monthly',
+    'nsf_count_3m', 'negative_days_3m', 'owner_percentage',
+    'owner_credit_score', 'business_age_months'
 ]
 
 
@@ -104,7 +104,6 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
         )
 
     return df
-
 
 
 def prepare_input(data):
