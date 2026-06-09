@@ -1155,7 +1155,7 @@ elif page == "Prediction":
  
             try:
  
-                shap_input     = raw_batch_df.copy
+                shap_input     = raw_batch_df.copy()
                 missing_cols = [c for c in TRAINING_COLUMN_ORDER if c not in shap_input.columns]
                 if missing_cols:
                     st.warning(f"Missing columns for SHAP: {missing_cols}")
