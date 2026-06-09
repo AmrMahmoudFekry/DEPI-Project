@@ -938,52 +938,82 @@ elif page == "Prediction":
         f'<div class="main-title">{t("Risk Prediction Engine")}</div>',
         unsafe_allow_html=True
     )
+
     st.markdown(
         f'<div class="subtitle">{t("AI-Powered Financial Risk Assessment")}</div>',
         unsafe_allow_html=True
     )
+
     st.markdown("---")
 
     # ── Batch Prediction ──────────────────────────────────
-        st.markdown(f"## {t('Batch Prediction')}")
-        st.markdown(
-            t("Upload a portfolio CSV with one business per row and get a batch risk report. The CSV must contain the same base input features used by the model.")
+    st.markdown(f"## {t('Batch Prediction')}")
+
+    st.markdown(
+        t(
+            "Upload a portfolio CSV with one business per row and get a batch risk report. "
+            "The CSV must contain the same base input features used by the model."
         )
-        uploaded_file = st.file_uploader(
-                t("Upload portfolio CSV"),
-                type=["csv"],
-                help=t(
-                    "Required columns: credit_amount, monthly_income_avg, "
-                    "total_deposits_3m, revenue_volatility_3m, request_ratio, "
-                    "dti_monthly, nsf_count_3m, negative_days_3m, "
-                    "owner_percentage, owner_credit_score, business_age_months"
-                ),
+    )
+
+    uploaded_file = st.file_uploader(
+        t("Upload portfolio CSV"),
+        type=["csv"],
+        help=t(
+            "Required columns: credit_amount, monthly_income_avg, "
+            "total_deposits_3m, revenue_volatility_3m, request_ratio, "
+            "dti_monthly, nsf_count_3m, negative_days_3m, "
+            "owner_percentage, owner_credit_score, business_age_months"
+        ),
+    )
+
+    st.markdown(f"### {t('Required Columns')}")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.code("""
+        credit_amount
+        monthly_income_avg
+        total_deposits_3m
+        revenue_volatility_3m
+        request_ratio
+        dti_monthly
+        """)
+
+    with col2:
+        st.code("""
+        nsf_count_3m
+        negative_days_3m
+        owner_percentage
+        owner_credit_score
+        business_age_months
+        """)
+
+    if uploaded_file is not None:
+        try:
+            import plotly.graph_objects as go
+
+            raw_batch_df = pd.read_csv(uploaded_file)
+            pipeline = load_pipeline()
+            batch_results = predict_batch_risk(pipeline, raw_batch_df)
+
+            count_by_label = batch_results['risk_label'].value_counts().to_dict()
+            low_count = count_by_label.get('LOW RISK', 0)
+            med_count = count_by_label.get('MEDIUM RISK', 0)
+            high_count = count_by_label.get('HIGH RISK', 0)
+
+            total = len(batch_results)
+            avg_score = round(batch_results['risk_score'].mean(), 1)
+
+            avg_credit_score = (
+                round(raw_batch_df['owner_credit_score'].mean(), 0)
+                if 'owner_credit_score' in raw_batch_df.columns
+                else 0
             )
 
-        st.markdown(f"### {t('Required Columns')}")
-
-        st.info(""" credit_amount , monthly_income_avg , total_deposits_3m , revenue_volatility_3m , request_ratio 
-                , dti_monthly , nsf_count_3m , negative_days_3m , owner_percentage , owner_credit_score , business_age_months """)
-
-        if uploaded_file is not None:
-            try:
-                import plotly.graph_objects as go
- 
-                raw_batch_df  = pd.read_csv(uploaded_file)
-                pipeline      = load_pipeline()
-                batch_results = predict_batch_risk(pipeline, raw_batch_df)
- 
-                count_by_label = batch_results['risk_label'].value_counts().to_dict()
-                low_count  = count_by_label.get('LOW RISK',    0)
-                med_count  = count_by_label.get('MEDIUM RISK', 0)
-                high_count = count_by_label.get('HIGH RISK',   0)
-                total      = len(batch_results)
-                avg_score  = round(batch_results['risk_score'].mean(), 1)
-                avg_credit_score = round(raw_batch_df['owner_credit_score'].mean(), 0) \
-                    if 'owner_credit_score' in raw_batch_df.columns else 0
- 
-                font_color = "#F8FAFC" if theme == "dark" else "#0F172A"
-                bg_color   = "rgba(0,0,0,0)" if theme == "dark" else "#FFFFFF"
+            font_color = "#F8FAFC" if theme == "dark" else "#0F172A"
+            bg_color = "rgba(0,0,0,0)" if theme == "dark" else "#FFFFFF"
  
                 # ── KPI Cards ────────────────────────────
                 st.markdown(f"### 📊 {t('Batch Prediction Summary')}")
