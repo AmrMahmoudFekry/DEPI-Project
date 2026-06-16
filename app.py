@@ -677,50 +677,15 @@ def render_recommendation_card(rec, idx):
 
 
 # =========================================================
-# SIDEBAR RENDER (FIXED SPACING & TEXT SCALING FOR LOGO)
+# SIDEBAR RENDER (FULLY OPTIMIZED WITH DESIGN SCALING)
 # =========================================================
 with st.sidebar:
-
-    # حقن استايل مخصص فقط لتكبير عناصر الـ Sidebar لتتناسب مع حجم اللوجو
-    st.markdown(
-        """
-        <style>
-        /* تكبير حجم التكست للأقسام الرئيسية والعناوين الجانبية */
-        .sidebar-section-title {
-            font-size: 16px !important;
-            margin-top: 28px !important;
-            margin-bottom: 16px !important;
-            letter-spacing: 0.75px !important;
-        }
-        /* تكبير حجم الـ Radio Buttons (Navigation) */
-        div[data-testid="stRadio"] label p {
-            font-size: 18px !important;
-            font-weight: 500 !important;
-        }
-        /* تكبير حجم الـ Expanders (Model Snapshot & Dataset) */
-        .streamlit-expanderHeader p {
-            font-size: 17px !important;
-            font-weight: 600 !important;
-        }
-        /* إضافة مسافة مبسطة داخل الـ Expander */
-        .streamlit-expanderContent {
-            font-size: 15px !important;
-            line-height: 1.6 !important;
-        }
-        /* ضبط مسافات الفواصل */
-        .sidebar-divider {
-            margin: 24px 0 !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
 
     encoded_logo = load_logo_base64(logo_path)
 
     if encoded_logo:
         st.markdown(
-            f'<div class="sidebar-logo-box" style="margin-bottom: 25px;"><img src="data:image/png;base64,{encoded_logo}" class="logo-img"></div>',
+            f'<div class="sidebar-logo-box"><img src="data:image/png;base64,{encoded_logo}" class="logo-img"></div>',
             unsafe_allow_html=True
         )
     else:
@@ -729,8 +694,7 @@ with st.sidebar:
             unsafe_allow_html=True
         )
 
-    # 1. الملاحة (Navigation) باستخدام الـ Radio المفضل لديك
-    # ملحوظة: يمكنك استخدام الأيقونات قبل الأسماء مباشرة في الـ List لتظهر مثل صورتك
+    # 1. قائمة الملاحة (Navigation) باستخدام الـ Radio المفضل لديك
     page_names  = ["Dashboard", "Prediction", "Analytics", "Reports"]
     page_icons  = ["📊 Dashboard", "🔮 Prediction", "📈 Analytics", "📄 Reports"] if lang == "en" else ["📊 اللوحة الرئيسية", "🔮 التنبؤ", "📈 التحليلات", "📄 التقارير"]
     
@@ -740,12 +704,12 @@ with st.sidebar:
     current_idx = page_names.index(st.session_state.page)
     
     selected_icon = st.radio(
-        "", # تم إخفاء العنوان ليكون الشكل نظيفاً مثل الصورة
+        "", 
         page_icons,
         index=current_idx,
-        key="sidebar_navigation_radio"
+        key="sidebar_navigation_radio",
+        label_visibility="collapsed"
     )
-    # تحديث الصفحة بناءً على الاختيار
     st.session_state.page = page_names[page_icons.index(selected_icon)]
     page = st.session_state.page
 
@@ -780,12 +744,12 @@ with st.sidebar:
 
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
-    # 3. الـ Expanders المفضلة لديك (Model Snapshot & Dataset Summary)
+    # 3. الـ Expanders (Model Snapshot & Dataset Summary)
     with st.expander(f"🎯 {t('Model Snapshot')}"):
         st.markdown(
             f"""
             <div style="padding: 4px 0; line-height: 1.8;">
-                <div><b>{t('Best Model')}:</b> <span style="color:#8B5CF6;">{best_model}</span></div>
+                <div><b>{t('Best Model')}:</b> <span style="color:#8B5CF6; font-weight:700;">{best_model}</span></div>
                 <div><b>{t('Test ROC AUC')}:</b> {best_model_auc}%</div>
                 <div><b>{t('CV ROC AUC')}:</b> {cv_auc}%</div>
             </div>
@@ -804,8 +768,8 @@ with st.sidebar:
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 4px 0;">
                 <div><b>{t('Rows')}:</b> {rows_val}</div>
                 <div><b>{t('Features')}:</b> {feat_val}</div>
-                <div><b>{t('Low Risk')}:</b> <span style="color:#10B981;">{low_val}</span></div>
-                <div><b>{t('High Risk')}:</b> <span style="color:#EF4444;">{high_val}</span></div>
+                <div><b>{t('Low Risk')}:</b> <span style="color:#10B981; font-weight:700;">{low_val}</span></div>
+                <div><b>{t('High Risk')}:</b> <span style="color:#EF4444; font-weight:700;">{high_val}</span></div>
             </div>
             """,
             unsafe_allow_html=True
@@ -813,15 +777,17 @@ with st.sidebar:
 
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
-    # 4. اختيار اللغة وتبديل الـ Theme Mode في أسفل الـ Sidebar بشكل متناسق
-    col_lang, col_theme = st.columns([1.2, 1])
+    # 4. حاوية موحدة للغة والثيم بارتفاع متناسق هندسياً في سطر واحد
+    st.markdown('<div class="sidebar-footer-row">', unsafe_allow_html=True)
+    col_lang, col_theme = st.columns([1.1, 1])
     
     with col_lang:
         lang_choice = st.selectbox(
-            "", # إخفاء الليبل لجعل التصميم مدمج وبجانب زر الثيم
+            "", 
             [LANG_LABELS["en"], LANG_LABELS["ar"]],
             index=0 if st.session_state.lang == "en" else 1,
-            key="sidebar_language_select"
+            key="sidebar_language_select",
+            label_visibility="collapsed"
         )
         new_lang = "en" if lang_choice == LANG_LABELS["en"] else "ar"
         if new_lang != st.session_state.lang:
@@ -835,6 +801,7 @@ with st.sidebar:
         else:
             if st.button("🌙 Dark", key="toggle_to_dark", use_container_width=True):
                 toggle_theme()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # =========================================================
