@@ -1,386 +1,257 @@
 /* =========================================================
-   GLOBAL
+   GLOBAL & MAIN APP
 ========================================================= */
-
 html,
 body,
 [class*="css"] {
-
     font-family: 'Inter', sans-serif;
 }
 
-
-/* =========================================================
-   MAIN APP
-========================================================= */
-
 .stApp {
-
     transition: 0.3s ease;
 }
-
 
 /* =========================================================
    TITLES
 ========================================================= */
-
 .main-title {
-
     font-size: 46px;
-
     font-weight: 800;
-
     text-align: center;
-
     margin-bottom: 8px;
-
     letter-spacing: -1px;
 }
 
 .subtitle {
-
     text-align: center;
-
     font-size: 18px;
-
     opacity: 0.85;
-
     margin-bottom: 35px;
 }
 
-
 /* =========================================================
-   SIDEBAR
+   SIDEBAR & LOGO
 ========================================================= */
-
 section[data-testid="stSidebar"] {
-
     border-right: 1px solid rgba(255,255,255,0.05);
 }
 
-
-/* =========================================================
-   LOGO
-========================================================= */
-
 .sidebar-logo-container {
-
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
     padding-top: 10px;
-
     padding-bottom: 10px;
 }
 
 .logo-img {
-
     width: 220px;
-
     height: auto;
-
     object-fit: contain;
-
     display: block;
-
     margin: auto;
-
     transition: 0.3s ease;
 }
 
 .logo-img:hover {
-
     transform: scale(1.02);
 }
 
-
 /* =========================================================
-   METRIC CARDS
+   ADVANCED SIDEBAR NAVIGATION & ELEMENTS (تعديلات الأزرار واللغة)
 ========================================================= */
 
+/* إخفاء العنوان الافتراضي غير الجميل للـ Radio button */
+div[data-testid="stSidebarUserContent"] div.stRadio > label {
+    display: none !important;
+}
+
+/* تنظيم الأزرار تحت بعض بمسافات متناسقة */
+div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important; /* مسافة ممتازة بين الأزرار */
+    padding: 10px 0 !important;
+}
+
+/* تكبير حجم الخط وضبط مساحة الضغط على الزرار (Padding) */
+div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] label {
+    font-size: 17px !important; /* تكبير حجم الخط مقارنة باللوجو */
+    font-weight: 700 !important; /* خط سميك واحترافي */
+    padding: 14px 18px !important; /* مساحة مريحة للعين والضغط */
+    border-radius: 12px !important;
+    background: transparent !important;
+    border: none !important;
+    transition: all 0.2s ease-in-out !important;
+    cursor: pointer !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* تأثير الـ Hover عند مرور الماوس فوق الصفحة */
+.stApp[data-theme="dark"] div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] label:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #2563EB !important;
+}
+
+.stApp[data-theme="light"] div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] label:hover {
+    background: rgba(37, 99, 235, 0.08) !important;
+    color: #1D4ED8 !important;
+}
+
+/* شكل الـ Tab النشط أو الصفحة المفتوحة حالياً */
+div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] label[data-checked="true"] {
+    background: linear-gradient(90deg, #2563EB, #1D4ED8) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* زرار اختيار اللغة في الـ Footer */
+div[data-testid="stSidebar"] .stSelectbox {
+    margin-top: 10px;
+}
+
+div[data-testid="stSidebar"] .stSelectbox label p {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    margin-bottom: 6px !important;
+}
+
+/* =========================================================
+   METRIC CARDS & AI BOX
+========================================================= */
 .metric-card {
-
-    background: linear-gradient(
-        135deg,
-        #111827,
-        #1E293B
-    );
-
+    background: linear-gradient(135deg, #111827, #1E293B);
     border-radius: 22px;
-
     padding: 28px;
-
     text-align: center;
-
     border: 1px solid rgba(255,255,255,0.06);
-
-    box-shadow:
-        0 10px 25px rgba(0,0,0,0.22);
-
+    box-shadow: 0 10px 25px rgba(0,0,0,0.22);
     transition: 0.3s ease;
 }
 
 .metric-card:hover {
-
     transform: translateY(-6px);
 }
 
 .metric-title {
-
     color: #CBD5E1;
-
     font-size: 17px;
-
     margin-bottom: 12px;
 }
 
 .metric-value {
-
     color: white;
-
     font-size: 38px;
-
     font-weight: 800;
 }
 
-
-/* =========================================================
-   AI BOX
-========================================================= */
-
 .ai-box {
-
     padding: 24px;
-
     border-radius: 20px;
-
-    background: linear-gradient(
-        135deg,
-        rgba(17,24,39,0.95),
-        rgba(30,41,59,0.92)
-    );
-
+    background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,41,59,0.92));
     border: 1px solid rgba(255,255,255,0.06);
-
     margin-bottom: 16px;
-
     transition: 0.3s ease;
 }
 
-.ai-box:hover {
-
-    transform: translateY(-4px);
-}
-
-
 /* =========================================================
-   BUTTONS
+   BUTTONS (SUBMIT & DOWNLOAD)
 ========================================================= */
-
 .stButton > button {
-
     width: 100%;
-
     height: 54px;
-
     border-radius: 14px;
-
     border: none !important;
-
     font-weight: 700;
-
-    background: linear-gradient(
-        90deg,
-        #2563EB,
-        #06B6D4
-    ) !important;
-
+    background: linear-gradient(90deg, #2563EB, #06B6D4) !important;
     color: white !important;
-
     transition: 0.3s ease;
 }
 
 .stButton > button:hover {
-
     transform: translateY(-2px);
 }
 
-
-/* =========================================================
-   DOWNLOAD BUTTON
-========================================================= */
-
 .stDownloadButton > button {
-
     width: 100%;
-
     height: 54px;
-
     border-radius: 14px;
-
     border: none;
-
     font-weight: 700;
-
-    background: linear-gradient(
-        90deg,
-        #059669,
-        #10B981
-    ) !important;
-
+    background: linear-gradient(90deg, #059669, #10B981) !important;
     color: white !important;
 }
 
+/* =========================================================
+   FIXES FOR LIGHT MODE VARIABLES
+========================================================= */
+.stApp[data-theme="light"] {
+    background-color: #F1F5F9 !important;
+    color: #0F172A !important;
+}
+
+.stApp[data-theme="light"] section[data-testid="stSidebar"] {
+    background-color: #FFFFFF !important; /* خلفية بيضاء نظيفة للـ Sidebar */
+    border-right: 1px solid #E2E8F0 !important;
+}
+
+.stApp[data-theme="light"] .stSlider [data-testid="stWidgetLabel"] p {
+    color: #0F172A !important;
+}
+
+.stApp[data-theme="light"] .stNumberInput input {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    border: 1px solid #CBD5E1 !important;
+}
+
+.stApp[data-theme="light"] .stNumberInput label p,
+.stApp[data-theme="light"] .stSelectbox label p {
+    color: #0F172A !important;
+}
+
+/* حل مشكلة اختفاء الـ Help Tooltips */
+.stApp[data-theme="light"] div[data-testid="stTooltipIcon"] button {
+    color: #475569 !important;
+}
+
+.stApp[data-theme="light"] div[data-testid="stTooltipContent"] {
+    background-color: #0F172A !important;
+    color: #FFFFFF !important;
+}
+
+/* كروت الـ Metrics والـ Expander في الـ Light mode */
+.stApp[data-theme="light"] .metric-card {
+    background: linear-gradient(135deg, #FFFFFF, #E2E8F0);
+    border: 1px solid #CBD5E1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stApp[data-theme="light"] .metric-title { color: #475569; }
+.stApp[data-theme="light"] .metric-value { color: #0F172A; }
+
+.stApp[data-theme="light"] div[data-testid="stExpander"] {
+    background-color: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+}
+
+.stApp[data-theme="light"] div[data-testid="stExpander"] p {
+    color: #0F172A !important;
+}
 
 /* =========================================================
-   LIGHT MODE
+   RESPONSIVE & PLOTLY FIX
 ========================================================= */
+.js-plotly-plot { border-radius: 18px; overflow: hidden; }
+[data-testid="stDataFrame"] { border-radius: 18px; overflow: hidden; }
 
-[data-theme="light"] {
-
-    color: #020617 !important;
+.stApp[data-theme="light"] .js-plotly-plot text {
+    fill: #0F172A !important;
 }
-
-
-/* =========================================================
-   LIGHT SIDEBAR
-========================================================= */
-
-[data-theme="light"] section[data-testid="stSidebar"] {
-
-    background: #E2E8F0 !important;
-}
-
-
-/* =========================================================
-   LIGHT TEXT
-========================================================= */
-
-[data-theme="light"] h1,
-[data-theme="light"] h2,
-[data-theme="light"] h3,
-[data-theme="light"] h4,
-[data-theme="light"] h5,
-[data-theme="light"] h6,
-[data-theme="light"] p,
-[data-theme="light"] span,
-[data-theme="light"] label {
-
-    color: #020617 !important;
-}
-
-
-/* =========================================================
-   LIGHT CARDS
-========================================================= */
-
-[data-theme="light"] .metric-card {
-
-    background: linear-gradient(
-        135deg,
-        #FFFFFF,
-        #CBD5E1
-    );
-
-    border: 1px solid #94A3B8;
-}
-
-[data-theme="light"] .metric-title {
-
-    color: #334155;
-}
-
-[data-theme="light"] .metric-value {
-
-    color: #020617;
-}
-
-
-/* =========================================================
-   LIGHT AI BOX
-========================================================= */
-
-[data-theme="light"] .ai-box {
-
-    background: linear-gradient(
-        135deg,
-        #FFFFFF,
-        #E2E8F0
-    );
-
-    color: #020617;
-}
-
-
-/* =========================================================
-   LIGHT BUTTONS
-========================================================= */
-
-[data-theme="light"] .stButton > button {
-
-    background: linear-gradient(
-        90deg,
-        #1E3A8A,
-        #2563EB
-    ) !important;
-}
-
-
-/* =========================================================
-   PLOTLY FIX
-========================================================= */
-
-.js-plotly-plot {
-
-    border-radius: 18px;
-
-    overflow: hidden;
-}
-
-
-/* =========================================================
-   LIGHT MODE PLOTLY TEXT
-========================================================= */
-
-[data-theme="light"] .js-plotly-plot text {
-
-    fill: #020617 !important;
-}
-
-
-/* =========================================================
-   TABLES
-========================================================= */
-
-[data-testid="stDataFrame"] {
-
-    border-radius: 18px;
-
-    overflow: hidden;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
 
 @media screen and (max-width: 768px) {
-
-    .main-title {
-
-        font-size: 34px;
-    }
-
-    .metric-value {
-
-        font-size: 30px;
-    }
-
-    .logo-img {
-
-        width: 180px;
-    }
+    .main-title { font-size: 34px; }
+    .metric-value { font-size: 30px; }
+    .logo-img { width: 180px; }
 }
