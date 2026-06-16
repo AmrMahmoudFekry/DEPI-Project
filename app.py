@@ -1,3 +1,6 @@
+/* =========================================================
+   تعديل وتثبيت كود الـ CSS الديناميكي داخل app.py
+========================================================= */
 import streamlit as st
 import pandas as pd
 import json
@@ -237,7 +240,6 @@ TRANSLATIONS = {
         "Best Model": "أفضل نموذج",
         "CV ROC AUC": "متوسط ROC AUC",
         "Test ROC AUC": "ROC AUC على الاختبار",
-        "Avg Confidence": "متوسط الثقة",
         "Total Predictions": "إجمالي التنبؤات",
         "High Risk Cases": "حالات المخاطر العالية",
         "Model Performance Highlights": "أبرز أداء النموذج",
@@ -337,18 +339,22 @@ def t(key):
 
 
 # =========================================================
-# DYNAMIC COLORS
+# DYNAMIC COLORS & GRADIENTS FIX
 # =========================================================
 if theme == "dark":
-    bg        = "#0B1220"
-    card      = "#111827"
-    text      = "#F8FAFC"
-    logo_path = "assets/dark mode_Logo.png"
+    bg            = "#0B1220"
+    # Sidebar gradient for Dark Mode exactly as specified in CSS
+    sidebar_bg    = "linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(17,24,39,0.98) 100%)"
+    card          = "#111827"
+    text          = "#F8FAFC"
+    logo_path     = "assets/dark mode_Logo.png"
 else:
-    bg        = "#F8FAFC"
-    card      = "#FFFFFF"
-    text      = "#0F172A"
-    logo_path = "assets/light mode_Logo.png"
+    bg            = "#F8FAFC"
+    # Sidebar gradient for Light Mode exactly as specified in CSS
+    sidebar_bg    = "linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%)"
+    card          = "#FFFFFF"
+    text          = "#0F172A"
+    logo_path     = "assets/light mode_Logo.png"
 
 ai_box_bg    = "rgba(17,24,39,0.95)" if theme == "dark" else "#FFFFFF"
 ai_box_bdr   = "rgba(255,255,255,0.06)" if theme == "dark" else "#CBD5E1"
@@ -451,7 +457,7 @@ st.markdown(
         color: {text};
     }}
     section[data-testid="stSidebar"] {{
-        background-color: {card};
+        background: {sidebar_bg} !important;
     }}
     h1,h2,h3,h4,h5,h6,p,span,label {{
         color:{text} !important;
@@ -673,7 +679,7 @@ def render_recommendation_card(rec, idx):
 
 
 # =========================================================
-# SIDEBAR
+# SIDEBAR RENDER
 # =========================================================
 with st.sidebar:
 
@@ -798,7 +804,7 @@ with st.sidebar:
 
 
 # =========================================================
-# DASHBOARD
+# DASHBOARD PAGE
 # =========================================================
 if page == "Dashboard":
 
@@ -1002,7 +1008,7 @@ elif page == "Prediction":
                 )
  
             _kpi(k1, "Total SMEs",       total,              "#2563EB")
-            _kpi(k2, "High Risk",         high_count,         "#EF4444")
+            _kpi(k2, "High Risk",          high_count,         "#EF4444")
             _kpi(k3, "Avg Risk Score",    f"{avg_score}%",    "#F59E0B")
             _kpi(k4, "Avg Credit Score",  int(avg_credit_score), "#10B981")
  
@@ -1609,7 +1615,7 @@ elif page == "Reports":
 
         h_cols = st.columns(3)
         h_data = [
-            ("Total Predictions", str(len(history_df))),
+            "Total Predictions", str(len(history_df))),
             ("High Risk",         str((history_df["risk_label"] == "HIGH RISK").sum())),
             ("Avg Confidence",    f"{round(history_df['confidence'].mean(), 1)}%"),
         ]
