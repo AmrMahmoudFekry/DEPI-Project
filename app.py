@@ -102,7 +102,7 @@ LANG_LABELS = {
 # =========================================================
 TRANSLATIONS = {
     "en": {
-        "Language": "Language",
+        "Language": "🌐 Language Selection",
         "Navigation": "Navigation",
         "Dashboard": "Dashboard",
         "Prediction": "Prediction",
@@ -211,7 +211,7 @@ TRANSLATIONS = {
         "How long the company has been operating.": "How long the company has been operating.",
     },
     "ar": {
-        "Language": "اللغة",
+        "Language": "🌐 اختر اللغة",
         "Navigation": "التنقل",
         "Dashboard": "اللوحة الرئيسية",
         "Prediction": "التنبؤ",
@@ -332,26 +332,30 @@ def t(key):
 
 
 # =========================================================
-# DYNAMIC COLORS
+# DYNAMIC COLORS & THEMES FIXES
 # =========================================================
 if theme == "dark":
     bg        = "#0B1220"
     card      = "#111827"
     text      = "#F8FAFC"
+    sub_text  = "#94A3B8"
+    border_clr= "rgba(255,255,255,0.08)"
     logo_path = "assets/dark mode_Logo.png"
 else:
-    bg        = "#F8FAFC"
+    bg        = "#F1F5F9"
     card      = "#FFFFFF"
     text      = "#0F172A"
+    sub_text  = "#475569"
+    border_clr= "#CBD5E1"
     logo_path = "assets/light mode_Logo.png"
 
 ai_box_bg    = "rgba(17,24,39,0.95)" if theme == "dark" else "#FFFFFF"
 ai_box_bdr   = "rgba(255,255,255,0.06)" if theme == "dark" else "#CBD5E1"
 ai_box_text  = "#F8FAFC" if theme == "dark" else "#0F172A"
-badge_text   = "#CBD5E1" if theme == "dark" else "#334155"
+badge_text   = "#CBD5E1" if theme == "dark" else "#475569"
 
 # =========================================================
-# RTL — safe, scoped approach
+# RTL & CUSTOM SIDEBAR LAYOUT RULES
 # =========================================================
 rtl_style = ""
 if lang == "ar":
@@ -379,15 +383,46 @@ if lang == "ar":
 st.markdown(
     f"""
     <style>
+    /* Global fixes for layout */
     .stApp {{ background-color: {bg}; color: {text}; }}
-    section[data-testid="stSidebar"] {{ background-color: {card}; }}
+    section[data-testid="stSidebar"] {{ background-color: {card} !important; }}
     h1,h2,h3,h4,h5,h6,p,span,label {{ color:{text} !important; }}
+    
+    /* Fix Light mode font visibility on specific widgets */
+    .stNumberInput label, .stSlider label, .stSelectbox label, div[data-testid="stExpander"] p {{ color: {text} !important; }}
+    div[data-testid="stExpander"] {{ background-color: {card} !important; border: 1px solid {border_clr} !important; border-radius: 12px; }}
+    
+    /* Fix Light mode Input fields contrast */
+    .stNumberInput input {{ background-color: {bg} !important; color: {text} !important; }}
+    
+    /* Advanced Navigation Layout Overrides */
+    div[data-testid="stSidebarUserContent"] div.stRadio > label {{ display: none !important; }}
+    div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] {{
+        display: flex; flex-direction: column; gap: 10px; padding: 5px 0;
+    }}
+    div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] label {{
+        font-size: 16px !important; font-weight: 600 !important; padding: 10px 14px !important;
+        border-radius: 10px !important; background: transparent; border: none !important;
+        transition: all 0.2s ease-in-out; cursor: pointer; color: {sub_text} !important;
+    }}
+    div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] label:hover {{
+        background: rgba(37, 99, 235, 0.08) !important; color: #2563EB !important;
+    }}
+    div[data-testid="stSidebarUserContent"] div.stRadio div[data-testid="stWidgetToggleGroup"] label[data-checked="true"] {{
+        background: linear-gradient(90deg, #2563EB, #1D4ED8) !important; color: #FFFFFF !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }}
+    
+    /* Light mode Help icon / Tooltip styling fix */
+    div[data-testid="stTooltipIcon"] button {{ color: {text} !important; }}
+    
     .ai-box {{ background: {ai_box_bg} !important; border: 1px solid {ai_box_bdr} !important; color: {ai_box_text} !important; }}
     .ai-box h4, .ai-box p, .ai-box div {{ color: {ai_box_text} !important; }}
     .rec-title {{ color: {ai_box_text} !important; font-weight: 700; font-size: 16px; margin-bottom: 6px; }}
     .rec-desc {{ color: {badge_text} !important; font-size: 14px; line-height: 1.6; margin-bottom: 12px; }}
+    
     .stFileUploader, .stFileUploader > div, .stFileUploader div[data-testid="stFileUploadDropzone"] {{
-        background-color: {card} !important; color: {text} !important; border: 1px solid rgba(148,163,184,0.35) !important;
+        background-color: {card} !important; color: {text} !important; border: 1px solid {border_clr} !important;
     }}
     .stFileUploader label, .stFileUploader span, .stFileUploader p {{ color: {text} !important; }}
     .stFileUploader button {{ background: linear-gradient(90deg, #1E3A8A, #2563EB) !important; color: white !important; }}
@@ -458,10 +493,10 @@ def confidence_breakdown(confidence, risk_score):
 
     st.markdown(
         f"""
-        <div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#F1F5F9'};
-            border-radius:16px; padding:20px; border:1px solid {'rgba(255,255,255,0.06)' if theme=='dark' else '#CBD5E1'}; margin-top:12px;">
+        <div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#FFFFFF'};
+            border-radius:16px; padding:20px; border:1px solid {border_clr}; margin-top:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="color:{badge_text};font-size:14px;font-weight:600;">{pred_conf}</span>
+                <span style="color:{sub_text};font-size:14px;font-weight:600;">{pred_conf}</span>
                 <span style="background:{certainty_color}; color:white; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700;">
                     {conf_label}
                 </span>
@@ -470,7 +505,7 @@ def confidence_breakdown(confidence, risk_score):
             <div style="background:rgba(100,100,100,0.2); border-radius:8px; height:10px; margin-bottom:10px; overflow:hidden;">
                 <div style="background:{certainty_color}; width:{confidence}%; height:100%; border-radius:8px; transition:width 0.5s ease;"></div>
             </div>
-            <div style="color:{badge_text};font-size:12px;direction:{'rtl' if lang=='ar' else 'ltr'};">
+            <div style="color:{sub_text};font-size:12px;direction:{'rtl' if lang=='ar' else 'ltr'};">
                 {dec_margin}: <b style="color:{certainty_color};">{margin}%</b> {above_rand} ·
                 {model_is} <b style="color:{certainty_color};">{certainty.lower()}ly {cert_word}</b> {in_pred}
             </div>
@@ -507,15 +542,15 @@ def render_recommendation_card(rec, idx):
     )
 
 
-# ==========================
-# SIDEBAR 
-# ==========================
+# =========================================================
+# SIDEBAR (UPGRADED & LIGHT MODE OPTIMIZED)
+# =========================================================
 with st.sidebar:
     encoded_logo = load_logo_base64(logo_path)
     if encoded_logo:
         st.markdown(
             f"""<div style="text-align:center;margin-top:10px;">
-                <img src="data:image/png;base64,{encoded_logo}" style="width:200px;display:block;margin:auto;object-fit:contain;">
+                <img src="data:image/png;base64,{encoded_logo}" style="width:210px;display:block;margin:auto;object-fit:contain;">
             </div>""",
             unsafe_allow_html=True
         )
@@ -528,9 +563,9 @@ with st.sidebar:
             unsafe_allow_html=True
         )
 
-    st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
-    # 1. Navigation Links (Professional Radio Buttons with Icons)
+    # 1. Navigation Links (Fixed Lag & Styled properly)
     page_names = ["Dashboard", "Prediction", "Analytics", "Reports"]
     page_icons = {"Dashboard": "📊 ", "Prediction": "🔮 ", "Analytics": "📈 ", "Reports": "📄 "}
     page_labels = [f"{page_icons[name]}{t(name)}" for name in page_names]
@@ -540,17 +575,17 @@ with st.sidebar:
         
     current_idx = page_names.index(st.session_state.page)
     selected_label = st.radio(
-        t("Navigation"),
+        "Nav",
         page_labels,
         index=current_idx,
-        label_visibility="collapsed"
+        key="navigation_radio"
     )
     st.session_state.page = page_names[page_labels.index(selected_label)]
     page = st.session_state.page
 
-    st.markdown("---")
+    st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
 
-    # Load stats data
+    # Load data variables
     model_summary   = load_model_summary()
     data_summary    = load_data_summary()
     pipeline_status = "Ready" if PIPELINE_PATH.exists() else "Missing"
@@ -562,25 +597,25 @@ with st.sidebar:
     total_predictions = len(history_df)
     avg_risk         = round(history_df["risk_score"].mean(), 1) if total_predictions > 0 else 0
 
-    # 2. Scoped System Overview (Compact Card Grid Layout)
+    # 2. Scoped System Overview Cards (Theme Aware Text Color Fix)
     st.markdown(f"##### ⚙️ {t('System Overview')}")
     st.markdown(
         f"""
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.12); border-radius: 8px; padding: 10px; text-align: center;">
-                <div style="font-size: 11px; color: {badge_text};">{t('Predictions')}</div>
+            <div style="background: rgba(100,100,100,0.04); border: 1px solid {border_clr}; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 11px; color: {sub_text};">{t('Predictions')}</div>
                 <div style="font-size: 16px; font-weight: 700; color: #2563EB;">{total_predictions}</div>
             </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.12); border-radius: 8px; padding: 10px; text-align: center;">
-                <div style="font-size: 11px; color: {badge_text};">{t('Avg Confidence')}</div>
+            <div style="background: rgba(100,100,100,0.04); border: 1px solid {border_clr}; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 11px; color: {sub_text};">{t('Avg Confidence')}</div>
                 <div style="font-size: 16px; font-weight: 700; color: #F59E0B;">{avg_risk}%</div>
             </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.12); border-radius: 8px; padding: 10px; text-align: center;">
-                <div style="font-size: 11px; color: {badge_text};">{t('Pipeline')}</div>
+            <div style="background: rgba(100,100,100,0.04); border: 1px solid {border_clr}; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 11px; color: {sub_text};">{t('Pipeline')}</div>
                 <div style="font-size: 14px; font-weight: 700; color: #10B981;">{pipeline_status}</div>
             </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.12); border-radius: 8px; padding: 10px; text-align: center;">
-                <div style="font-size: 10px; color: {badge_text};">{t('Last Update')}</div>
+            <div style="background: rgba(100,100,100,0.04); border: 1px solid {border_clr}; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 10px; color: {sub_text};">{t('Last Update')}</div>
                 <div style="font-size: 11px; font-weight: 600; color: {text}; overflow: hidden; white-space: nowrap;">{trained_time.split()[0]}</div>
             </div>
         </div>
@@ -588,12 +623,12 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    # 3. Model Snapshot Area
+    # 3. Snapshot and Dataset Overview Expanders
     with st.expander(f"🎯 {t('Model Snapshot')}", expanded=False):
         st.markdown(
             f"""
             <div style="line-height:1.6; color:{text}; font-size: 13px; text-align:{'right' if lang=='ar' else 'left'};">
-                <div><strong>{t('Best Model')}:</strong> <code style="color:#8B5CF6;">{best_model}</code></div>
+                <div><strong>{t('Best Model')}:</strong> <code style="color:#8B5CF6; background:transparent;">{best_model}</code></div>
                 <div><strong>{t('Test ROC AUC')}:</strong> {best_model_auc}%</div>
                 <div><strong>{t('CV ROC AUC')}:</strong> {cv_auc}%</div>
             </div>
@@ -601,23 +636,22 @@ with st.sidebar:
             unsafe_allow_html=True
         )
 
-    # 4. Dataset Summary Area
     with st.expander(f"📊 {t('Dataset Summary')}", expanded=False):
         c1, c2 = st.columns(2)
         with c1:
-            st.caption(f"**{t('Rows')}:** {data_summary['rows']:,}" if data_summary else "N/A")
-            st.caption(f"**{t('Low Risk')}:** {data_summary['low_risk']:,}" if data_summary and data_summary['low_risk'] is not None else "N/A")
+            st.markdown(f"<span style='font-size:12px; color:{text};'><b>{t('Rows')}:</b> {data_summary['rows']:,}</span>" if data_summary else "N/A", unsafe_allow_html=True)
+            st.markdown(f"<span style='font-size:12px; color:{text};'><b>{t('Low Risk')}:</b> {data_summary['low_risk']:,}</span>" if data_summary and data_summary['low_risk'] is not None else "N/A", unsafe_allow_html=True)
         with c2:
-            st.caption(f"**{t('Features')}:** {data_summary['features']}" if data_summary else "N/A")
-            st.caption(f"**{t('High Risk')}:** {data_summary['high_risk']:,}" if data_summary and data_summary['high_risk'] is not None else "N/A")
+            st.markdown(f"<span style='font-size:12px; color:{text};'><b>{t('Features')}:</b> {data_summary['features']}</span>" if data_summary else "N/A", unsafe_allow_html=True)
+            st.markdown(f"<span style='font-size:12px; color:{text};'><b>{t('High Risk')}:</b> {data_summary['high_risk']:,}</span>" if data_summary and data_summary['high_risk'] is not None else "N/A", unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
 
-    # 5. Sidebar Footer: Language and Minimal Theme Icons
-    foot_c1, foot_c2 = st.columns([1.2, 1])
+    # 4. Sidebar Footer Custom Dropdown with Title Inside & Theme Toggle Switch
+    foot_c1, foot_c2 = st.columns([1.3, 1])
     with foot_c1:
         lang_choice = st.selectbox(
-            t("Language"),
+            "Language Select",
             [LANG_LABELS["en"], LANG_LABELS["ar"]],
             index=0 if st.session_state.lang == "en" else 1,
             key="language_select",
@@ -663,7 +697,7 @@ if page == "Dashboard":
         status = "Ready" if ready else "Missing"
         color  = "#10B981" if ready else "#F59E0B"
         col.markdown(
-            f"<div style='padding:18px;border-radius:16px;border:1px solid {color};background:rgba(255,255,255,0.04);'>"
+            f"<div style='padding:18px;border-radius:16px;border:1px solid {color};background:rgba(100,100,100,0.05);'>"
             f"<div style='font-size:14px;color:{color};font-weight:700;'>{label}</div>"
             f"<div style='font-size:20px;color:{color};margin-top:8px;'>{status}</div>"
             f"</div>",
@@ -688,9 +722,9 @@ if page == "Dashboard":
         with col:
             st.markdown(
                 f"""
-                <div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#F1F5F9'};
-                    border-radius:14px; padding:18px; text-align:center; border-top:3px solid {clr}; margin-bottom:8px;">
-                    <div style="color:{badge_text};font-size:12px;margin-bottom:6px;">{label}</div>
+                <div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#FFFFFF'};
+                    border-radius:14px; padding:18px; text-align:center; border: 1px solid {border_clr}; border-top:4px solid {clr}; margin-bottom:8px;">
+                    <div style="color:{sub_text};font-size:12px;margin-bottom:6px;">{label}</div>
                     <div style="color:{clr};font-size:24px;font-weight:800;">{val}</div>
                 </div>
                 """,
@@ -721,11 +755,11 @@ if page == "Dashboard":
             for item in pair:
                 st.markdown(
                     f"""
-                    <div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#F1F5F9'};
-                        border-radius:12px; padding:14px 16px; margin-bottom:10px; border-left:3px solid #2563EB;">
+                    <div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#FFFFFF'};
+                        border-radius:12px; padding:14px 16px; margin-bottom:10px; border: 1px solid {border_clr}; border-left:4px solid #2563EB;">
                         <div style="font-weight:700;color:{text};font-size:14px;">{item[0]}</div>
                         <div style="color:#2563EB;font-weight:800;font-size:18px;margin:4px 0;">{item[1]}</div>
-                        <div style="color:{badge_text};font-size:12px;">{item[2]}</div>
+                        <div style="color:{sub_text};font-size:12px;">{item[2]}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -779,9 +813,9 @@ elif page == "Prediction":
  
             def _kpi(col, label, value, color):
                 col.markdown(
-                    f"""<div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#F1F5F9'};
-                        border-radius:14px;padding:18px;text-align:center; border-top:4px solid {color};margin-bottom:8px;">
-                        <div style="color:{badge_text};font-size:12px;margin-bottom:6px;">{label}</div>
+                    f"""<div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#FFFFFF'};
+                        border-radius:14px;padding:18px;text-align:center; border: 1px solid {border_clr}; border-top:4px solid {color};margin-bottom:8px;">
+                        <div style="color:{sub_text};font-size:12px;margin-bottom:6px;">{label}</div>
                         <div style="color:{color};font-size:28px;font-weight:800;">{value}</div>
                     </div>""",
                     unsafe_allow_html=True
@@ -847,7 +881,7 @@ elif page == "Prediction":
  
             with top_col:
                 st.markdown(
-                    f"""<div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#F1F5F9'}; border-radius:14px;padding:16px; border-top:4px solid #EF4444;">
+                    f"""<div style="background:{'rgba(17,24,39,0.95)' if theme=='dark' else '#FFFFFF'}; border-radius:14px; padding:16px; border: 1px solid {border_clr}; border-top:4px solid #EF4444;">
                         <div style="color:#EF4444;font-weight:800;font-size:15px;margin-bottom:12px;">🚨 Top 5 Highest Risk Businesses</div>""",
                     unsafe_allow_html=True
                 )
