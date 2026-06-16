@@ -677,15 +677,50 @@ def render_recommendation_card(rec, idx):
 
 
 # =========================================================
-# SIDEBAR RENDER
+# SIDEBAR RENDER (FIXED SPACING & TEXT SCALING FOR LOGO)
 # =========================================================
 with st.sidebar:
+
+    # حقن استايل مخصص فقط لتكبير عناصر الـ Sidebar لتتناسب مع حجم اللوجو
+    st.markdown(
+        """
+        <style>
+        /* تكبير حجم التكست للأقسام الرئيسية والعناوين الجانبية */
+        .sidebar-section-title {
+            font-size: 16px !important;
+            margin-top: 28px !important;
+            margin-bottom: 16px !important;
+            letter-spacing: 0.75px !important;
+        }
+        /* تكبير حجم الـ Radio Buttons (Navigation) */
+        div[data-testid="stRadio"] label p {
+            font-size: 18px !important;
+            font-weight: 500 !important;
+        }
+        /* تكبير حجم الـ Expanders (Model Snapshot & Dataset) */
+        .streamlit-expanderHeader p {
+            font-size: 17px !important;
+            font-weight: 600 !important;
+        }
+        /* إضافة مسافة مبسطة داخل الـ Expander */
+        .streamlit-expanderContent {
+            font-size: 15px !important;
+            line-height: 1.6 !important;
+        }
+        /* ضبط مسافات الفواصل */
+        .sidebar-divider {
+            margin: 24px 0 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
     encoded_logo = load_logo_base64(logo_path)
 
     if encoded_logo:
         st.markdown(
-            f'<div class="sidebar-logo-box"><img src="data:image/png;base64,{encoded_logo}" class="logo-img"></div>',
+            f'<div class="sidebar-logo-box" style="margin-bottom: 25px;"><img src="data:image/png;base64,{encoded_logo}" class="logo-img"></div>',
             unsafe_allow_html=True
         )
     else:
@@ -694,36 +729,31 @@ with st.sidebar:
             unsafe_allow_html=True
         )
 
-    st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-
-    lang_choice = st.selectbox(
-        t("Language"),
-        [LANG_LABELS["en"], LANG_LABELS["ar"]],
-        index=0 if st.session_state.lang == "en" else 1,
-        key="language_select"
-    )
-    new_lang = "en" if lang_choice == LANG_LABELS["en"] else "ar"
-    if new_lang != st.session_state.lang:
-        st.session_state.lang = new_lang
-        st.rerun()
-
+    # 1. الملاحة (Navigation) باستخدام الـ Radio المفضل لديك
+    # ملحوظة: يمكنك استخدام الأيقونات قبل الأسماء مباشرة في الـ List لتظهر مثل صورتك
     page_names  = ["Dashboard", "Prediction", "Analytics", "Reports"]
-    page_labels = [t(name) for name in page_names]
+    page_icons  = ["📊 Dashboard", "🔮 Prediction", "📈 Analytics", "📄 Reports"] if lang == "en" else ["📊 اللوحة الرئيسية", "🔮 التنبؤ", "📈 التحليلات", "📄 التقارير"]
+    
     if "page" not in st.session_state:
         st.session_state.page = "Dashboard"
-    current_page = st.session_state.page
-    selected_label = page_labels[page_names.index(current_page)]
-    selected_page = st.selectbox(
-        t("Navigation"),
-        page_labels,
-        index=page_labels.index(selected_label),
-        key="page_select"
+    
+    current_idx = page_names.index(st.session_state.page)
+    
+    selected_icon = st.radio(
+        "", # تم إخفاء العنوان ليكون الشكل نظيفاً مثل الصورة
+        page_icons,
+        index=current_idx,
+        key="sidebar_navigation_radio"
     )
-    page = page_names[page_labels.index(selected_page)]
-    st.session_state.page = page
+    # تحديث الصفحة بناءً على الاختيار
+    st.session_state.page = page_names[page_icons.index(selected_icon)]
+    page = st.session_state.page
 
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
+    # 2. قسم نظرة عامة على النظام (System Overview)
+    st.markdown(f'<div class="sidebar-section-title">⚙️ {t("System Overview")}</div>', unsafe_allow_html=True)
+    
     model_summary   = load_model_summary()
     data_summary    = load_data_summary()
     pipeline_status = "Ready" if PIPELINE_PATH.exists() else "Missing"
@@ -736,11 +766,9 @@ with st.sidebar:
         else "N/A"
     )
 
-    st.markdown(f'<div class="sidebar-section-title">{t("System Overview")}</div>', unsafe_allow_html=True)
-
-    history_df       = load_history()
+    history_df        = load_history()
     total_predictions = len(history_df)
-    avg_risk         = round(history_df["risk_score"].mean(), 1) if total_predictions > 0 else 0
+    avg_risk          = round(history_df["risk_score"].mean(), 1) if total_predictions > 0 else 0
 
     col1, col2 = st.columns(2)
     with col1:
@@ -752,52 +780,60 @@ with st.sidebar:
 
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="sidebar-section-title">{t("Model Snapshot")}</div>', unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="sidebar-info-box" style="direction:{'rtl' if lang=='ar' else 'ltr'};text-align:{'right' if lang=='ar' else 'left'};margin-bottom:16px;">
-            <div><strong>{t('Best Model')}:</strong> {best_model}</div>
-            <div><strong>{t('Test ROC AUC')}:</strong> {best_model_auc}%</div>
-            <div><strong>{t('CV ROC AUC')}:</strong> {cv_auc}%</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # 3. الـ Expanders المفضلة لديك (Model Snapshot & Dataset Summary)
+    with st.expander(f"🎯 {t('Model Snapshot')}"):
+        st.markdown(
+            f"""
+            <div style="padding: 4px 0; line-height: 1.8;">
+                <div><b>{t('Best Model')}:</b> <span style="color:#8B5CF6;">{best_model}</span></div>
+                <div><b>{t('Test ROC AUC')}:</b> {best_model_auc}%</div>
+                <div><b>{t('CV ROC AUC')}:</b> {cv_auc}%</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with st.expander(f"📊 {t('Dataset Summary')}"):
+        rows_val = f"{data_summary['rows']:,}" if data_summary else "N/A"
+        feat_val = data_summary['features'] if data_summary else "N/A"
+        low_val  = f"{data_summary['low_risk']:,}" if data_summary and data_summary['low_risk'] is not None else "N/A"
+        high_val = f"{data_summary['high_risk']:,}" if data_summary and data_summary['high_risk'] is not None else "N/A"
+        
+        st.markdown(
+            f"""
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 4px 0;">
+                <div><b>{t('Rows')}:</b> {rows_val}</div>
+                <div><b>{t('Features')}:</b> {feat_val}</div>
+                <div><b>{t('Low Risk')}:</b> <span style="color:#10B981;">{low_val}</span></div>
+                <div><b>{t('High Risk')}:</b> <span style="color:#EF4444;">{high_val}</span></div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="sidebar-section-title">{t("Dataset Summary")}</div>', unsafe_allow_html=True)
-    data_cols = st.columns(2)
-    with data_cols[0]:
-        st.metric(t("Rows"),     f"{data_summary['rows']:,}"      if data_summary else "N/A")
-        st.metric(t("Low Risk"), f"{data_summary['low_risk']:,}"  if data_summary and data_summary['low_risk'] is not None else "N/A")
-    with data_cols[1]:
-        st.metric(t("Features"),  data_summary['features']         if data_summary else "N/A")
-        st.metric(t("High Risk"), f"{data_summary['high_risk']:,}" if data_summary and data_summary['high_risk'] is not None else "N/A")
+    # 4. اختيار اللغة وتبديل الـ Theme Mode في أسفل الـ Sidebar بشكل متناسق
+    col_lang, col_theme = st.columns([1.2, 1])
+    
+    with col_lang:
+        lang_choice = st.selectbox(
+            "", # إخفاء الليبل لجعل التصميم مدمج وبجانب زر الثيم
+            [LANG_LABELS["en"], LANG_LABELS["ar"]],
+            index=0 if st.session_state.lang == "en" else 1,
+            key="sidebar_language_select"
+        )
+        new_lang = "en" if lang_choice == LANG_LABELS["en"] else "ar"
+        if new_lang != st.session_state.lang:
+            st.session_state.lang = new_lang
+            st.rerun()
 
-    st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-
-    st.markdown(f'<div class="sidebar-section-title">{t("AI Status")}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sidebar-status-box success">✅ {t("Prediction Engine Active")}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sidebar-status-box info">ℹ️ {t("Analytics System Online")}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sidebar-status-box warning">⚠️ {t("Monitoring Financial Risk")}</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-
-    st.markdown(f'<div class="sidebar-section-title">{t("Platform")}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sidebar-info-box" style="text-align:center;margin-bottom:20px;">{t("AI-powered SME Risk Intelligence Platform")}</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sidebar-section-title">{t("Theme Mode")}</div>', unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🌙 Dark"):
-            if theme != "dark":
+    with col_theme:
+        if theme == "dark":
+            if st.button("☀️ Light", key="toggle_to_light", use_container_width=True):
                 toggle_theme()
-    with col2:
-        if st.button("☀️ Light"):
-            if theme != "light":
+        else:
+            if st.button("🌙 Dark", key="toggle_to_dark", use_container_width=True):
                 toggle_theme()
 
 
