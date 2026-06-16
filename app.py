@@ -1615,7 +1615,7 @@ elif page == "Reports":
 
         h_cols = st.columns(3)
         h_data = [
-            "Total Predictions", str(len(history_df))),
+            ("Total Predictions", str(len(history_df))),
             ("High Risk",         str((history_df["risk_label"] == "HIGH RISK").sum())),
             ("Avg Confidence",    f"{round(history_df['confidence'].mean(), 1)}%"),
         ]
