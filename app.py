@@ -46,6 +46,7 @@ from components.ai_recommendation_engine import generate_ai_recommendations
 from components.risk_badge import risk_badge
 from components.dashboard_stats import get_dashboard_stats
 from components.report_generator import generate_pdf
+from supabase import create_client, Client
 
 
 # =========================================================
@@ -506,6 +507,30 @@ ROOT_DIR = Path(__file__).resolve().parent
 DATA_PATH = ROOT_DIR / "Data" / "SMEs_Data.csv"
 MODEL_SUMMARY_PATH = ROOT_DIR / "model_comparison_results.json"
 PIPELINE_PATH = ROOT_DIR / "pipeline.pkl"
+# ----------------------------------------------
+
+@st.cache_resource
+def init_connection() -> Client:
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)
+
+supabase = init_connection()
+
+@st.cache_data(ttl=3600) # الكاش هيتجدد كل ساعة
+def load_smes_data():
+    try:
+        response = supabase.table("smes_data").select("*").execute()
+        if response.data:
+            return pd.DataFrame(response.data)
+    except Exception as e:
+        st.error(f"حدث خطأ أثناء سحب البيانات من Supabase: {e}")
+    
+    # خط رجعة: لو السيرفر وقع يقرأ من الملف المحلي
+    if DATA_PATH.exists():
+        return pd.read_csv(DATA_PATH)
+    return pd.DataFrame()
+# ----------------------------------------------
 
 
 def load_logo_base64(path):
@@ -524,8 +549,8 @@ def load_model_summary():
 
 
 def load_data_summary():
-    if DATA_PATH.exists():
-        df = pd.read_csv(DATA_PATH)
+    df = load_smes_data()
+    if not df.empty:
         low_risk  = int((df["risk_sharp"] == 0).sum()) if "risk_sharp" in df.columns else None
         high_risk = int((df["risk_sharp"] == 1).sum()) if "risk_sharp" in df.columns else None
         return {
@@ -535,7 +560,6 @@ def load_data_summary():
             "high_risk": high_risk,
         }
     return None
-
 
 def format_update_time(path: Path):
     if path.exists():
@@ -822,8 +846,9 @@ if page == "Dashboard":
     model_summary = load_model_summary()
     final_metrics = model_summary["final_metrics"] if model_summary else {}
 
+    df_main = load_smes_data()
     artifact_status = {
-        "Dataset":    DATA_PATH.exists(),
+        "Dataset":    not df_main.empty,
         "Pipeline":   PIPELINE_PATH.exists(),
         "Comparison": MODEL_SUMMARY_PATH.exists(),
     }
@@ -1468,11 +1493,12 @@ elif page == "Analytics":
         unsafe_allow_html=True
     )
 
-    try:
-        df = pd.read_csv(DATA_PATH)
-    except FileNotFoundError:
-        df = pd.read_csv("SMEs_Data.csv")
-
+    df = load_smes_data()
+    
+    if df.empty:
+        st.warning(t("No data available in Supabase."))
+        st.stop()
+        
     st.markdown(f"### 📊 {t('Dataset Summary')}")
     summary_cols = st.columns(4)
     summary_data = [
@@ -1646,9 +1672,13 @@ elif page == "Reports":
 
         with act_col2:
             if st.button(t("🗑️ Clear Prediction History")):
-                history_df.iloc[0:0].to_csv("prediction_history.csv", index=False)
-                st.success(t("✅ Prediction history cleared successfully"))
-                st.rerun()
+                try:
+                    
+                    supabase.table("prediction_history").delete().neq("timestamp", "").execute()
+                    st.success(t("✅ Prediction history cleared successfully"))
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error clearing history: {e}")
 
     else:
         st.info(t("No prediction history available yet."))
