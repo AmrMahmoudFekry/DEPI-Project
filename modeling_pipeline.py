@@ -128,7 +128,7 @@ def main():
         ),
         'Extra Trees': ExtraTreesClassifier(
             n_estimators=100,
-            max_depth= None,
+            max_depth=None,
             min_samples_leaf=2,
             max_features='sqrt',
             class_weight='balanced',
@@ -136,10 +136,12 @@ def main():
             n_jobs=-1,
         ),
         'AdaBoost': AdaBoostClassifier(
-            n_estimators=150, learning_rate=1, random_state=42
+            n_estimators=150, 
+            learning_rate=1.0, 
+            random_state=42
         ),
         'Logistic Regression': LogisticRegression(
-            C=5.0,
+            C=0.5, 
             max_iter=500,
             class_weight='balanced',
             solver='lbfgs',
