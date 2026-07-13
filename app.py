@@ -836,12 +836,15 @@ if page == "Dashboard":
     model_summary = load_model_summary()
     final_metrics = model_summary["final_metrics"] if model_summary else {}
 
-    df_main = load_smes_data()
+    # ── التعديل الجديد المستقر والمحلي ──────────────────────────────────
+    DATA_CSV_PATH = ROOT_DIR / "Data" / "SMEs_Data.csv"
+
     artifact_status = {
-        "Dataset":    not df_main.empty,
+        "Dataset":    DATA_CSV_PATH.exists(),  # الفحص أصبح محلياً وسيعطيك Ready فوراً
         "Pipeline":   PIPELINE_PATH.exists(),
         "Comparison": MODEL_SUMMARY_PATH.exists(),
     }
+    # ──────────────────────────────────────────────────────────────────
 
     st.markdown(f"### 🔧 {t('System Overview')}")
     status_cols = st.columns(3)
@@ -936,7 +939,6 @@ if page == "Dashboard":
                 )
 
     st.markdown("---")
-
 
 # =========================================================
 # PREDICTION PAGE
