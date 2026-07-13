@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import json
@@ -20,7 +19,8 @@ from utils.helper import prepare_input
 
 from utils.history_manager import (
     save_prediction,
-    load_history
+    load_history,
+    clear_history
 )
 from components.ui_cards import metric_card
 
@@ -46,7 +46,7 @@ from components.ai_recommendation_engine import generate_ai_recommendations
 from components.risk_badge import risk_badge
 from components.dashboard_stats import get_dashboard_stats
 from components.report_generator import generate_pdf
-from supabase import create_client, Client
+from utils.db import get_supabase_client
 
 
 # =========================================================
@@ -504,18 +504,11 @@ st.markdown(
 # HELPERS
 # =========================================================
 ROOT_DIR = Path(__file__).resolve().parent
-DATA_PATH = ROOT_DIR / "Data" / "SMEs_Data.csv"
 MODEL_SUMMARY_PATH = ROOT_DIR / "model_comparison_results.json"
 PIPELINE_PATH = ROOT_DIR / "pipeline.pkl"
 # ----------------------------------------------
 
-@st.cache_resource
-def init_connection() -> Client:
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_KEY"]
-    return create_client(url, key)
-
-supabase = init_connection()
+supabase = get_supabase_client()
 
 @st.cache_data(ttl=3600) # الكاش هيتجدد كل ساعة
 def load_smes_data():
@@ -525,10 +518,7 @@ def load_smes_data():
             return pd.DataFrame(response.data)
     except Exception as e:
         st.error(f"حدث خطأ أثناء سحب البيانات من Supabase: {e}")
-    
-    # خط رجعة: لو السيرفر وقع يقرأ من الملف المحلي
-    if DATA_PATH.exists():
-        return pd.read_csv(DATA_PATH)
+
     return pd.DataFrame()
 # ----------------------------------------------
 
@@ -1673,8 +1663,7 @@ elif page == "Reports":
         with act_col2:
             if st.button(t("🗑️ Clear Prediction History")):
                 try:
-                    
-                    supabase.table("prediction_history").delete().neq("timestamp", "").execute()
+                    clear_history()
                     st.success(t("✅ Prediction history cleared successfully"))
                     st.rerun()
                 except Exception as e:
