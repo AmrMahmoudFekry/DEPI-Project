@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+*.pkl
+prediction_history.csv
+.DS_Store
+.env.local
+.vscode/
+.venv/

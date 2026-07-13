@@ -1,0 +1,103 @@
+{
+  "model_comparison": {
+    "Gradient Boosting": {
+      "cv_roc_auc_mean": 97.983,
+      "cv_roc_auc_std": 0.179,
+      "train_roc_auc": 98.815,
+      "test_accuracy": 92.086,
+      "test_precision": 93.209,
+      "test_recall": 89.696,
+      "test_f1": 91.419,
+      "test_roc_auc": 98.027,
+      "test_avg_precision": 98.055
+    },
+    "XGBoost": {
+      "cv_roc_auc_mean": 97.938,
+      "cv_roc_auc_std": 0.183,
+      "train_roc_auc": 98.573,
+      "test_accuracy": 91.857,
+      "test_precision": 93.702,
+      "test_recall": 88.632,
+      "test_f1": 91.097,
+      "test_roc_auc": 97.927,
+      "test_avg_precision": 97.967
+    },
+    "Hist Gradient Boosting": {
+      "cv_roc_auc_mean": 97.972,
+      "cv_roc_auc_std": 0.208,
+      "train_roc_auc": 98.365,
+      "test_accuracy": 92.043,
+      "test_precision": 92.797,
+      "test_recall": 90.061,
+      "test_f1": 91.408,
+      "test_roc_auc": 97.996,
+      "test_avg_precision": 98.017
+    },
+    "Random Forest": {
+      "cv_roc_auc_mean": 97.413,
+      "cv_roc_auc_std": 0.219,
+      "train_roc_auc": 99.7,
+      "test_accuracy": 91.286,
+      "test_precision": 92.894,
+      "test_recall": 88.207,
+      "test_f1": 90.49,
+      "test_roc_auc": 97.376,
+      "test_avg_precision": 97.518
+    },
+    "Extra Trees": {
+      "cv_roc_auc_mean": 97.153,
+      "cv_roc_auc_std": 0.223,
+      "train_roc_auc": 100.0,
+      "test_accuracy": 90.471,
+      "test_precision": 92.076,
+      "test_recall": 87.234,
+      "test_f1": 89.59,
+      "test_roc_auc": 97.161,
+      "test_avg_precision": 97.218
+    },
+    "AdaBoost": {
+      "cv_roc_auc_mean": 97.22,
+      "cv_roc_auc_std": 0.338,
+      "train_roc_auc": 97.306,
+      "test_accuracy": 90.543,
+      "test_precision": 91.661,
+      "test_recall": 87.872,
+      "test_f1": 89.727,
+      "test_roc_auc": 97.191,
+      "test_avg_precision": 97.31
+    },
+    "Logistic Regression": {
+      "cv_roc_auc_mean": 95.847,
+      "cv_roc_auc_std": 0.26,
+      "train_roc_auc": 95.86,
+      "test_accuracy": 88.429,
+      "test_precision": 86.773,
+      "test_recall": 88.936,
+      "test_f1": 87.841,
+      "test_roc_auc": 95.86,
+      "test_avg_precision": 95.8
+    }
+  },
+  "final_metrics": {
+    "best_model": "Gradient Boosting",
+    "test_accuracy": 92.11,
+    "test_precision": 92.97,
+    "test_recall": 90.03,
+    "test_f1": 91.48,
+    "test_roc_auc": 98.04
+  },
+  "best_model": "Gradient Boosting",
+  "features_used": [
+    "credit_amount",
+    "monthly_income_avg",
+    "total_deposits_3m",
+    "nsf_count_3m",
+    "negative_days_3m",
+    "business_age_months",
+    "dti_monthly",
+    "owner_percentage",
+    "owner_credit_score",
+    "revenue_volatility_3m",
+    "request_ratio"
+  ]
+}
