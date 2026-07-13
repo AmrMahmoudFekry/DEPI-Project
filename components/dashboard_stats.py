@@ -1,23 +1,15 @@
 import pandas as pd
-import os
+
+from utils.history_manager import load_history
 
 
 def get_dashboard_stats():
+    """
+    Summary stats for the sidebar/dashboard, now sourced from the
+    Supabase 'prediction_history' table instead of a local CSV.
+    """
+    df = load_history()
 
-    if not os.path.exists(
-        "prediction_history.csv"
-    ):
-        return {
-            "total_predictions": 0,
-            "high_risk": 0,
-            "avg_confidence": 0
-        }
-
-    df = pd.read_csv(
-        "prediction_history.csv"
-    )
-
-    # Handle empty CSV (headers only, no rows)
     if df.empty:
         return {
             "total_predictions": 0,
@@ -32,7 +24,7 @@ def get_dashboard_stats():
     )
 
     # Guard against NaN when confidence column exists but is empty
-    confidence_series = df["confidence"].dropna()
+    confidence_series = df["confidence"].dropna() if "confidence" in df.columns else pd.Series(dtype=float)
 
     if len(confidence_series) == 0:
         avg_conf = 0
