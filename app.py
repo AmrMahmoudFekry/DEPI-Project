@@ -510,16 +510,27 @@ PIPELINE_PATH = ROOT_DIR / "pipeline.pkl"
 
 supabase = get_supabase_client()
 
-@st.cache_data(ttl=3600) # الكاش هيتجدد كل ساعة
+@st.cache_data(ttl=60)  
 def load_smes_data():
-    try:
-        response = supabase.table("smes_data").select("*").execute()
-        if response.data:
-            return pd.DataFrame(response.data)
-    except Exception as e:
-        st.error(f"حدث خطأ أثناء سحب البيانات من Supabase: {e}")
 
+    try:
+        supabase_client = get_supabase_client()
+        if supabase_client:
+            response = supabase_client.table("smes_data").select("*").execute()
+            if response.data and len(response.data) > 0:
+                return pd.DataFrame(response.data)
+    except Exception as e:
+        print(f"Supabase sync deferred, triggering local fallback: {e}")
+
+    try:
+        DATA_CSV_PATH = ROOT_DIR / "Data" / "SMEs_Data.csv"
+        if DATA_CSV_PATH.exists():
+            return pd.read_csv(DATA_CSV_PATH)
+    except Exception as local_err:
+        st.error(f"Critical Error: Live Database and local backup are both unreachable: {local_err}")
+        
     return pd.DataFrame()
+
 # ----------------------------------------------
 
 
