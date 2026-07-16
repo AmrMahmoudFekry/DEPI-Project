@@ -18,6 +18,22 @@ A ready-to-use sample file for testing the **Batch Prediction** feature is inclu
 
 ---
 
+## 📊 Project Infographic
+
+As requested for the final graduation submission, a comprehensive one-page infographic summarizing the platform's architecture, ML pipeline, and core features has been prepared.
+
+### 👉 [Download / View Project Infographic (PDF)](assets/infographic.pdf)
+
+*(You can click the link above or use the interactive button below to view the PDF directly inside GitHub or download it)*
+
+<p align="center">
+  <a href="assets/infographic.pdf" target="_blank">
+    <img src="https://img.shields.io/badge/View_&_Download_Infographic-PDF_Format-FF6B6B?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Download PDF Infographic" height="50">
+  </a>
+</p>
+
+---
+
 ## What This Project Does
 
 The SME Risk Intelligence Platform helps banks and credit analysts make better lending decisions. Given a set of financial indicators for a business, the system:
