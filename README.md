@@ -20,15 +20,15 @@ A ready-to-use sample file for testing the **Batch Prediction** feature is inclu
 
 ## 📊 Project Infographic
 
-As requested for the final graduation submission, a comprehensive one-page infographic summarizing the platform's architecture, ML pipeline, and core features has been prepared.
+A complete one-page infographic summarizing the platform architecture, machine learning pipeline, deployment stack, explainability workflow, and key project outcomes.
 
-### 👉 [Download / View Project Infographic (PDF)](https://raw.github.com/AmrMahmoudFekry/DEPI-Project/blob/main/assets/infographic.pdf)
+### 📥 Download Infographic
 
-*(You can click the link above or use the interactive button below to view the PDF directly inside GitHub or download it)*
+👉 **[Download PDF Infographic](https://raw.githubusercontent.com/AmrMahmoudFekry/DEPI-Project/main/assets/infographic.pdf)**
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/AmrMahmoudFekry/DEPI-Project/main/assets/infographic.pdf" target="_blank">
-    <img src="https://img.shields.io/badge/View_&_Download_Infographic-PDF_Format-FF6B6B?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Download PDF Infographic" height="50">
+  <a href="https://github.com/AmrMahmoudFekry/DEPI-Project/blob/main/assets/infographic.pdf?raw=1">
+    <img src="https://img.shields.io/badge/Download_Infographic-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white">
   </a>
 </p>
 
