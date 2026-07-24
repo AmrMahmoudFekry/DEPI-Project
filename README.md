@@ -22,7 +22,7 @@ A ready-to-use sample file for testing the **Batch Prediction** feature is inclu
 
 As requested for the final graduation submission, a comprehensive one-page infographic summarizing the platform's architecture, ML pipeline, and core features has been prepared.
 
-### 👉 [Download / View Project Infographic (PDF)](https://raw.githubusercontent.com/AmrMahmoudFekry/DEPI-Project/main/assets/infographic.pdf)
+### 👉 [Download / View Project Infographic (PDF)](https://raw.github.com/AmrMahmoudFekry/DEPI-Project/blob/main/assets/infographic.pdf)
 
 *(You can click the link above or use the interactive button below to view the PDF directly inside GitHub or download it)*
 
